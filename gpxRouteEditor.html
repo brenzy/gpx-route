@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+<title>GPX Route Editor</title>
+<meta name="description"
+	content="Utility to edit GPX files using google maps while viewing street view.">
+<link rel="stylesheet"	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<!-- link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" -->
+<link href="css/gpxRouteEditor.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<!-- link href="font-awesome-4.3.0/css/font-awesome.css" rel="stylesheet" type="text/css" -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<!-- script src="js/bootstrap.min.js"></script -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<script src="js/utilities.js"></script>
+<script src="js/gpxFile.js"></script>
+<script src="js/undoManager.js"></script>
+<script src="js/mapRouter.js"></script>
+<script src="js/gpxRouteEditor.js"></script>
+</head>
+<body class="gpxRouteEditor">
+	<ul class="navBar nav nav-pills">
+		<li class="mapView active"><a href="#">GPX Route Editor</a></li>
+		<li class="aboutView"><a href="#">About</a></li>
+		<li class="newStuffView"><a href="#">Updates</a></li>
+	</ul>
+	<div class="views">
+		<div class="view mapView">
+			<div class="map-container">
+				<div id="map-canvas"></div>
+				<div id="pano"></div>
+			</div>
+			<ul class="navBar nav-map-view nav nav-pills">
+				<li class="loadView active"><a href="#">Find Location or
+						Load GPX</a></li>
+				<li class="navigateView"><a href="#">Navigate The Route</a></li>
+				<li class="editView"><a href="#">Edit</a></li>
+				<li class="downloadView"><a href="#">Download GPX</a></li>
+			</ul>
+			<div class="view loadView">
+				<div class="location">
+					<label for="location">Enter Map Location:</label> <input
+						type="text" id="location" class="form-control" />
+					<button type="button" id="find" class="btn btn-primary btn-dark">
+						<span class="glyphicon glyphicon-search" aria-hidden="true"
+							title="Find location on map"></span>
+					</button>
+					<span class="findError"></span>
+				</div>
+				<div class="loadGPX">
+					<span class="btn btn-primary btn-dark btn-file"> Load GPX
+						File&hellip; <input type="file" accept=".gpx" />
+					</span> <label><input type="text" class="currentGPX form-control"
+						readonly></label>
+				</div>
+			</div>
+
+			<div class="view navigateView">
+				<div class="jump-to">
+					Jump to:
+					<button id="jumpStart" class="btn  btn-dark">Beginning of
+						Route</button>
+					<button id="jumpEnd" class="btn  btn-dark">End of the
+						Route</button>
+					<button id="toLocation" class="btn  btn-dark">Location
+						closest to:</button>
+					<label for="jumpLocation"></label><input id="jumpLocation"
+						class="largeFont" type="text" value="0" /> km
+				</div>
+				<div class="section current-point">
+					<div>
+						Current Point: <span id="vertex"></span>, Latitude:<span
+							id="latitude"></span>, Longitude:<span id="longitude"></span>
+					</div>
+					<button id="calcCurrentDistance" class="btn btn-dark">Calculate
+						Distance to the Current Point</button>
+					<span id="current-distance"></span>
+				</div>
+				<div class="section">
+					<button id="calcRouteDistance" class="btn btn-dark">Calculate
+						Route Distance</button>
+					<span id="route-distance"></span>
+				</div>
+				<button id="follow" class="btn  btn-dark">Follow the route</button>
+			</div>
+
+			<div class="view editView">
+				<div class="instructions">Click on the map to append to the
+					route. Click on a point to select it. Right Click on a point to
+					remove it. Drag individual points to move them.</div>
+				<div class="section">
+					<div class="routing-check">
+						<input type="checkbox" id="use-routing" checked="true" /> <label
+							class="use-routing" for="use-routing">Use Google Maps
+							Routing:</label>
+					</div>
+					<ul class="routeMode">
+						<li><span class="walking"></span> <input type="radio"
+							name="mode" id="walking" value="walking" checked="true" /> <label
+							for="walking">Walking</label></li>
+						<li><span class="biking"></span> <input type="radio"
+							name="mode" id="biking" value="biking" /> <label for="biking">Biking</label>
+						</li>
+						<li><span class="driving"></span> <input type="radio"
+							name="mode" id="driving" value="driving" /> <label for="driving">Driving</label>
+						</li>
+						<li><span class="transit"></span> <input type="radio"
+							name="mode" id="transit" value="transit" /> <label for="transit">Transit</label>
+						</li>
+					</ul>
+				</div>
+				<div class="section">
+					<button class="undo btn  btn-dark">
+						<i class="fa fa-undo large-fa pull-left"></i>Undo
+					</button>
+					<button class="redo btn  btn-dark">
+						<i class="fa fa-repeat large-fa pull-left"></i>Redo
+					</button>
+					<button id="clear" class="btn btn-dark">Clear</button>
+				</div>
+				<div class="section">
+					<button id="snap" class="btn  btn-dark">Snap Points to
+						Street View</button>
+					<button id="double" class="btn  btn-dark">Snap Center
+						Points to Street View</button>
+					<span>(Starts at current point)</span>
+					<!--label><input id="display" type="checkbox"/>Display Street View</label-->
+				</div>
+
+				<div class="section">
+					<button id="last" class="btn  btn-dark">End the Route At
+						the Current Point</button>
+					<button id="first" class="btn  btn-dark">Start the Route
+						At the Current Point</button>
+					<button id="reverse" class="btn  btn-dark">Reverse the
+						Route</button>
+				</div>
+
+				<div class="section">
+					<div class="checkbox">
+						<label> <input id="streetview-pull" type="checkbox"
+							checked="true" />Pull new end points to Street View
+						</label>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="view downloadView">
+				<form class="form-horizontal">
+					<div class="form-group">
+						<label for="fileName" class="control-label col-xs-2">File
+							Name:</label>
+						<div class="col-xs-10">
+							<input id="fileName" class="form-control" type="text"
+								value="streetview.gpx" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="gpxName" class="control-label col-xs-2">GPX
+							Name:</label>
+						<div class="col-xs-10">
+							<input id="gpxName" class="form-control" type="text"
+								value="Street View Route" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="gpxDescription" class="control-label col-xs-2">Description:</label>
+						<div class="col-xs-10">
+							<textArea id="gpxDescription" class="form-control">GPX route that follows google Street View.</textArea>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-offset-2 col-xs-10">
+							<div class="checkbox ele-checkbox">
+								<label> <input id="addElevation" type="checkbox">Add
+									Elevation From Google Maps
+								</label>
+							</div>
+							<div id="elevationStatus"></div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-10">
+							<button class="btn btn-dark" id="downloadGPX">Download
+								GPX</button>
+							<button class="hidden"><a href="" id="hiddenDownload"></a></button>
+						</div>
+					</div>
+				</form>
+			</div>
+
+		</div>
+
+		<div class="view aboutView">
+			<div class="description">
+				<p>I love exploring new places on Google Street View while
+					riding GPX routes on my Tacx trainer. I created this application
+					because I couldn't find a GPX editor that contained all the
+					features that I wanted for creating these routes.
+				<p>This GPX editor displays the location of the Street View
+					layer on the map, and allows you to see Street View while you are
+					creating and editing the route. It provides functionality that
+					attempts to nudge the route onto an area that has Street View. It
+					can also attempt to interpolate street view points for routes
+					segments that are added when there are no directions available.
+					This make it possible to create routes over water, for instance,
+					through the Grand Canyon or the canals of Venice.</p>
+				<p>This program is subject to Google usage limits. If this
+					program is not working usage limits have probably been exceeded.
+					Usage limits for the elevation service are especially low. Running
+					the program locally will allow you to get rid of some of these
+					limits.</p>
+				<p>This is a work in progress. Many of the features need more
+					work. You can however create a good route for riding on your
+					trainer if you know how to talk to the application nicely. Please
+					see the "updates" section for a list of planned updates and fixes.</p>
+				<p>Known Issues</p>
+				<ul>
+					<li>There are several functions (such as download) that will
+						not work in IE and/or older browsers</li>
+					<li>There is a maximum size to the paths that can be stored in
+						google maps. If your route exceeds this limit, the application
+						will fail.</li>
+					<li>Some edits breaks the undo/redo stack</li>
+				</ul>
+				<p>
+					<span class="bold">Disclaimer:</span> The user is responsible for
+					insuring the accuracy and correctness of the routes produced by
+					this application.
+				</p>
+				<p>
+					Drop me a line at <span class="mailme"></span> to request changes
+					or report issues.
+				</p>
+			</div>
+		</div>
+
+		<div class="view newStuffView">
+			<div class="description">
+				<p>February 2015 - Initial Version</p>
+				<br />
+				<p>Todo List</p>
+				<ul>
+					<li>Add status messages on loading</li>
+					<li>Marker on current point</li>
+					<li>More undo/redo for editing - some edits breaks the
+						undo/redo stack</li>
+					<li>Snip path segment</li>
+					<li>Clear the redo/undo stack on a broken redo/undo</li>
+					<li>Add message when usage limits reached</li>
+					<li>Add more compact edit button bar, so you can see all the
+						commands at once</li>
+					<li>Allow continuous refresh as on option for route distances
+						- currently turned off so that usage limits won't be reached as
+						quickly.</li>
+					<li>Make sure the current point is always valid</li>
+					<li>Add different "speeds" for following the route</li>
+					<li>Add different cursors over the map to indicate state</li>
+					<li>Add popup help buttons to explain functionality
+						(especially snap to street view, and double-up points)</li>
+				</ul>
+			</div>
+		</div>
+
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+body {
+  background: #fcfcfa;
+  color: #333;
+  margin: 10px 10px 10px 10px;
+}
+.checkbox label {
+  font-weight: 700;
+}
+button {
+  font-family: "PT Sans", sans-serif;
+  font-size: 20px;
+}
+.navBar {
+  font-size: 40px;
+  font-weight: 300;
+}
+.navBar a {
+  color: #7B99E7;
+}
+.navBar.nav-pills>li>a {
+  padding: 5px 10px;
+}
+.navBar.nav-pills>li>a:hover {
+  border-color: #7B99E7;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+  background-color: #7B99E7;
+}
+.navBar.nav-map-view {
+  font-size: 30px;
+}
+.description {
+  font-size: 20px;
+  background: #AEBEE5;
+  padding: 20px;
+}
+#elosoft {
+  display: none;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  -moz-opacity: 0;
+  -khtml-opacity: 0;
+  opacity: 0;
+}
+.view.aboutView,
+.view.newStuffView,
+.view.editView,
+.view.downloadView,
+.view.navigateView
+{
+  display: none;
+}
+#map-canvas {
+  height: 600px;
+  width: 60%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+#pano {
+  position: absolute;
+  width: 40%;
+  height: 600px;
+  display: inline-block;
+  top: 0;
+  left: 60%;
+}
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+}
+/* Fix for Twitter Bootstrap css messing with the map */
+.gm-style img {
+  max-width: none;
+}
+.gm-style label {
+  width: auto; display:inline;
+}
+.location {
+  margin-top: 10px;
+}
+.location label {
+  display: inline-block;
+}
+#location {
+  width: 300px;
+  margin-bottom: 0;
+  margin-left: 10px;
+  margin-right: 10px;
+  display: inline-block;
+}
+.findError {
+  vertical-align: middle;
+  color: red;
+}
+.loadGPX {
+  margin-top: 10px;
+}
+.loadGPX label {
+  display: inline;
+}
+input.currentGPX {
+  margin-left: 10px;
+  margin-bottom: 0;
+  width: 300px;
+  display: inline-block;
+}
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  cursor: inherit;
+  display: block;
+}
+input[readonly] {
+  background-color: white !important;
+  cursor: text !important;
+}
+ul.routeMode {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+.routeMode li {
+  display: inline-block;
+  text-align: center;
+}
+#use-routing {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.use-routing {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+.routing-check {
+  display: inline-block;
+  vertical-align: top;
+}
+.routeMode {
+  display: inline-block;
+}
+.routeMode li span {
+  width: 32px;
+  height: 37px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.walking {
+  background-image: url(../img/walking.png);
+}
+.biking {
+  background-image: url(../img/cycling.png);
+}
+.transit {
+  background-image: url(../img/bus.png);
+}
+.driving {
+  background-image: url(../img/car.png);
+}
+
+/*noinspection CssInvalidFunction*/
+.btn-dark {
+  background-color: hsl(223, 47%, 47%) !important;
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#a8b8df", endColorstr="#3f5fb0");
+  background-image: -khtml-linear-gradient(left top, left bottom, from(#a8b8df), to(#3f5fb0));
+  background-image: -moz-linear-gradient(top, #a8b8df, #3f5fb0);
+  background-image: -ms-linear-gradient(top, #a8b8df, #3f5fb0);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a8b8df), color-stop(100%, #3f5fb0));
+  background-image: -webkit-linear-gradient(top, #a8b8df, #3f5fb0);
+  background-image: -o-linear-gradient(top, #a8b8df, #3f5fb0);
+  background-image: linear-gradient(#a8b8df, #3f5fb0);
+  border-color: #3f5fb0 #3f5fb0 hsl(223, 47%, 39.5%);
+  color:  #fff !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.49);
+  -webkit-font-smoothing: antialiased;
+}
+.btn-dark a {
+  color: #fff;
+  text-decoration: none;
+}
+.view .form-horizontal .control-label {
+  text-align: left;
+}
+.btn i.large-fa {
+  font-size: 1.33333333em;
+}
+
+#route-distance {
+  margin-left: 10px;
+  display: inline-block;
+}
+
+.jump-to {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#follow {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.section {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
+}
+
+.ele-checkbox {
+  display: inline-block;
+}
+#elevationStatus {
+  display: inline-block;
+  margin-left: 20px;
+}
