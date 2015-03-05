@@ -17,20 +17,25 @@ MapRouter = function(googleMap, pano) {
   var travelMode = google.maps.TravelMode.WALKING;
   var streetViewPull = true;
   var eltViews = null;
+  var eltStaticView = $("#staticView");
+  var eltPano = $("#panoView");
+  var currentPositionMarker;
+  var infoWindow = new google.maps.InfoWindow();
+  var MY_KEY =  "";  // put your key here...
 
   var DEFAULT_PROXIMITY = 50;
   var MAX_PROXIMITY = 10000;
 
   function updatePano(pano, index) {
+    eltPano.show();
+    eltStaticView.hide();
     panorama.setVisible(true);
     var pathLength = path.getLength();
     panorama.setPano(pano);
     var pov = panorama.getPov();
-    if (index - 1 < pathLength && index - 1 >= 0) {
-      var heading = google.maps.geometry.spherical.computeHeading(path.getAt(index - 1), path.getAt(index));
-      pov.heading = Math.round(heading);
+    if (index + 1 < pathLength) {
+      pov.heading = google.maps.geometry.spherical.computeHeading(path.getAt(index), path.getAt(index+1));
     }
-    panorama.setPov(pov);
     setTimeout(function () {
       // Only way I seem to be able to get the tiles to redraw properly
       panorama.setPov(pov);
@@ -66,30 +71,40 @@ MapRouter = function(googleMap, pano) {
 
   function endFollow() {
     following = false;
+    eltStaticView.hide();
+    map.setOptions({streetViewControl: true});
+    updateStreetView(currentVertex);
     if (eltViews) {
       eltViews.trigger("endFollow", true );
     }
   }
 
   function followRoute(index) {
-    if (!following)
-      return;
     var pathLength = path.getLength();
-    if (pathLength > index) {
+    if (following && pathLength > index) {
       setCurrentVertex(index, false);
       var point = path.getAt(index);
       map.panTo(point);
-      panoService.getPanoramaByLocation(point, DEFAULT_PROXIMITY, function processSVData(data, status) {
-        if (status == google.maps.StreetViewStatus.OK) {
-           if (displayIsOn) {
-            updatePano(data.location.pano, index);
-          }
-          followRoute(index+1, DEFAULT_PROXIMITY);
-        } else {
-          followRoute(index+1, DEFAULT_PROXIMITY);
-        }
+      var streetViewImage = new Image();
+      $(streetViewImage).one('load', function() {
+        eltStaticView.css('background-image', 'url(' + streetViewImage.src + ')');
+        $(streetViewImage).unbind();
+        followRoute(index+1);
       });
-
+      $(streetViewImage).error(function() {
+        $(streetViewImage).unbind();
+        followRoute(index+1);
+      });
+      var width = eltStaticView.width();
+      var height = eltStaticView.height();
+      var imageSrc =  "https://maps.googleapis.com/maps/api/streetview?size=" + width + "x" + height +
+      "&location=" + point.lat() + "," + point.lng() + MY_KEY;
+      if (index + 1 < pathLength) {
+        imageSrc +=  "&heading=" + (google.maps.geometry.spherical.computeHeading(point, path.getAt(index+1)));
+      } else if (index > 0) {
+        imageSrc +=  "&heading=" + (google.maps.geometry.spherical.computeHeading(path.getAt(index-1), point));
+      }
+      streetViewImage.src = imageSrc;
     } else {
       endFollow();
     }
@@ -349,6 +364,11 @@ MapRouter = function(googleMap, pano) {
     path = newPath;
   }
 
+  function setInfoWindowContents(point) {
+    var html = 'Selected Position<br />Latitude: ' + point.lat().toFixed(6) + '<br />Longitude: ' + point.lng().toFixed(6);
+    infoWindow.setContent(html);
+  }
+
   function setCurrentVertex(vertex, bUpdateUI) {
     if (vertex != null) {
       if (path && path.getLength() > vertex) {
@@ -358,14 +378,14 @@ MapRouter = function(googleMap, pano) {
           updateStreetView(vertex);
         }
         currentVertex = vertex;
-      }
-      if (eltViews) {
-        eltViews.trigger("currentPoint", [vertex, point.lat(), point.lng()]);
+        currentPositionMarker.setPosition(point);
+        currentPositionMarker.setZIndex(google.maps.Marker.MAX_ZINDEX + 200);
+        currentPositionMarker.setVisible(true);
+        setInfoWindowContents(point);
       }
     } else {
-      if (eltViews) {
-        eltViews.trigger("currentPoint", [null, null, null]);
-      }
+      currentPositionMarker.setVisible(false);
+      infoWindow.close();
     }
   }
 
@@ -414,6 +434,19 @@ MapRouter = function(googleMap, pano) {
     });
     google.maps.event.addListener(pathPolyline, 'click', onPolygonClick);
     google.maps.event.addListener(pathPolyline, 'rightclick', onPolygonRightClick);
+
+    currentPositionMarker = new google.maps.Marker({
+      title: "Selected Position",
+      zIndex: google.maps.Marker.MAX_ZINDEX + 200,
+      map: map,
+      optimized: false,
+      visible: false
+    });
+
+    google.maps.event.addListener(currentPositionMarker, 'click', function() {
+      setInfoWindowContents(this.getPosition());
+      infoWindow.open(map, currentPositionMarker);
+    });
 
     // For undo of moving points...
     //google.maps.event.addListener(path, 'set_at', function() {
@@ -478,6 +511,13 @@ MapRouter = function(googleMap, pano) {
     var numPoints = path.getLength();
     if (numPoints > 0) {
       setCurrentVertex(numPoints - 1, true);
+    }
+  };
+
+  mapRouter.centerOnCurrent = function() {
+    if (currentVertex != null && currentVertex < path.getLength()) {
+      var point = path.getAt(currentVertex);
+      map.panTo(point);
     }
   };
 
@@ -551,6 +591,9 @@ MapRouter = function(googleMap, pano) {
       if (currentVertex == null) {
         setCurrentVertex(0, false);
       }
+      eltPano.hide();
+      eltStaticView.show();
+      pano.setVisible(false);
       followRoute(currentVertex);
     }
   };
@@ -714,6 +757,12 @@ MapRouter = function(googleMap, pano) {
       default:
         travelMode = mode;
         break;
+    }
+  };
+
+  mapRouter.mapMode = function(mode) {
+    if (mapMode != mode) {
+      mapMode = mode;
     }
   };
 

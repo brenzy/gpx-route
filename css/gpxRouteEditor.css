@@ -46,7 +46,8 @@ button {
 .view.newStuffView,
 .view.editView,
 .view.downloadView,
-.view.navigateView
+.view.navigateView,
+.view.helpView
 {
   display: none;
 }
@@ -57,7 +58,7 @@ button {
   top: 0;
   left: 0;
 }
-#pano {
+#panoView, #staticView {
   position: absolute;
   width: 40%;
   height: 600px;
@@ -235,4 +236,8 @@ ul.routeMode {
 #elevationStatus {
   display: inline-block;
   margin-left: 20px;
+}
+
+.long-winded {
+  font-size: 14px;
 }

@@ -30,7 +30,8 @@
 		<div class="view mapView">
 			<div class="map-container">
 				<div id="map-canvas"></div>
-				<div id="pano"></div>
+        <div id="panoView"></div>
+        <div id="staticView"></div>
 			</div>
 			<ul class="navBar nav-map-view nav nav-pills">
 				<li class="loadView active"><a href="#">Find Location or
@@ -38,6 +39,7 @@
 				<li class="navigateView"><a href="#">Navigate The Route</a></li>
 				<li class="editView"><a href="#">Edit</a></li>
 				<li class="downloadView"><a href="#">Download GPX</a></li>
+        <li class="helpView"><a href="#">Help</a></li>
 			</ul>
 			<div class="view loadView">
 				<div class="location">
@@ -69,11 +71,8 @@
 					<label for="jumpLocation"></label><input id="jumpLocation"
 						class="largeFont" type="text" value="0" /> km
 				</div>
-				<div class="section current-point">
-					<div>
-						Current Point: <span id="vertex"></span>, Latitude:<span
-							id="latitude"></span>, Longitude:<span id="longitude"></span>
-					</div>
+        <button id="jumpCurrent" class="btn  btn-dark">Center Map At Current Point</button>
+        <div class="section current-point">
 					<button id="calcCurrentDistance" class="btn btn-dark">Calculate
 						Distance to the Current Point</button>
 					<span id="current-distance"></span>
@@ -87,9 +86,6 @@
 			</div>
 
 			<div class="view editView">
-				<div class="instructions">Click on the map to append to the
-					route. Click on a point to select it. Right Click on a point to
-					remove it. Drag individual points to move them.</div>
 				<div class="section">
 					<div class="routing-check">
 						<input type="checkbox" id="use-routing" checked="true" /> <label
@@ -120,7 +116,11 @@
 					</button>
 					<button id="clear" class="btn btn-dark">Clear</button>
 				</div>
-				<div class="section">
+        <div class="btn-group">
+          <button id="append-mode" class="btn btn-dark active">Append Mode</button>
+          <button id="edit-mode" class="btn btn-dark">Edit Mode</button>
+        </div>
+        <div class="section">
 					<button id="snap" class="btn  btn-dark">Snap Points to
 						Street View</button>
 					<button id="double" class="btn  btn-dark">Snap Center
@@ -192,6 +192,22 @@
 				</form>
 			</div>
 
+      <div class="view helpView">
+        <div>
+          <p>
+            Click on the map to append to the route.
+          </p>
+          <p>
+            Click on a point to select it. The "selected" point is displayed in the Street View Window.  You can
+            view the location of a point by clicking on the marker that appears when it is selected.
+          </p>
+          <p>
+            Right Click on a point to remove it.
+          </p>
+          <p>Drag individual points to move them.</p>
+        </div>
+      </div>
+
 		</div>
 
 		<div class="view aboutView">
@@ -241,26 +257,33 @@
 		<div class="view newStuffView">
 			<div class="description">
 				<p>February 2015 - Initial Version</p>
+				<div>March 4, 2015
+			  <ul class="long-winded">
+			  	<li>When clicking on a point, a tooltip with the latitude and longitude is displayed</li>
+			  	<li>Follow using static images.  Notification are received when images load,
+			  	    so this helps to get around a lot of issues that I had using the panorama for following.</li>
+			  	<li>Added help tab</li>
+			  	<li>Added center on current point button</li>
+			  	<li>Added ability to turn off append mode</li>
+			  </ul>
+        </div>
 				<br />
 				<p>Todo List</p>
 				<ul>
 					<li>Add status messages on loading</li>
-					<li>Marker on current point</li>
-					<li>More undo/redo for editing - some edits breaks the
-						undo/redo stack</li>
+					<li>Add more info (like elevation and distance) the current point tooltip</li>
+					<li>More undo/redo for editing - some edits breaks the undo/redo stack</li>
 					<li>Snip path segment</li>
 					<li>Clear the redo/undo stack on a broken redo/undo</li>
 					<li>Add message when usage limits reached</li>
-					<li>Add more compact edit button bar, so you can see all the
-						commands at once</li>
-					<li>Allow continuous refresh as on option for route distances
-						- currently turned off so that usage limits won't be reached as
-						quickly.</li>
+					<li>Add more compact edit button bar, so you can see all the commands at once</li>
+					<li>Allow continuous refresh as on option for route distances (currently turned off so 
+					  that usage limits won't be reached as	quickly.</li>
 					<li>Make sure the current point is always valid</li>
 					<li>Add different "speeds" for following the route</li>
 					<li>Add different cursors over the map to indicate state</li>
-					<li>Add popup help buttons to explain functionality
-						(especially snap to street view, and double-up points)</li>
+					<li>Add popup help buttons to explain functionality	(especially snap to street view, 
+					  and double-up points)</li>
 				</ul>
 			</div>
 		</div>

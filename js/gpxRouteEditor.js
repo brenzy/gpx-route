@@ -36,9 +36,6 @@ GPXRouteEditor = function(map, panorama) {
   var eltDistance = $("#route-distance");
   var eltCurrentDistance = $("#current-distance");
   var eltViews = $(".views");
-  var eltVertex = $("#vertex");
-  var eltLongitude = $("#longitude");
-  var eltLatitude = $("#latitude");
   var eltLocation = $("#jumpLocation");
   var eltFollow = $('#follow');
   var following = false;
@@ -49,6 +46,8 @@ GPXRouteEditor = function(map, panorama) {
   var eltGetElevation = $("#addElevation");
   var eltElevationStatus = $("#elevationStatus");
   var eltDownload = $("#hiddenDownload");
+  var eltAppendMode = $("#append-mode");
+  var eltEditMode = $("#edit-mode");
 
   function findStatus(status) {
     if (status == google.maps.GeocoderStatus.OK) {
@@ -102,6 +101,9 @@ GPXRouteEditor = function(map, panorama) {
     var locationStr = mapRouter.jumpToLocation(eltLocation.val());
     eltLocation.val(locationStr);
   });
+  $("#jumpCurrent").click(function(){
+    mapRouter.centerOnCurrent();
+  });
 
   $("#streetview-pull").click(function(event){
     mapRouter.streetViewPull(event.target.checked);
@@ -139,7 +141,7 @@ GPXRouteEditor = function(map, panorama) {
     eltDownload[0].click();
   }
 
-  $("#downloadGPX").click(function(event) {
+  $("#downloadGPX").click(function() {
     if (eltGetElevation.prop('checked')) {
       mapRouter.getElevation(function(elevations) {
         saveGPX(elevations);
@@ -154,12 +156,6 @@ GPXRouteEditor = function(map, panorama) {
   eltViews.on("routeDistance", function (event, totalDistance) {
     var strDistance = (Math.round(totalDistance / 10) / 100).toString() + " km";
     eltDistance.text(strDistance);
-  });
-
-  eltViews.on("currentPoint", function (event, index, lat, long) {
-    eltVertex.text(index != null ? index.toString() : ' --- ');
-    eltLatitude.text(lat != null ? (Math.round(lat / 10) / 100).toString() : ' --- ');
-    eltLongitude.text(long != null ? (Math.round(long/ 10) / 100).toString() : ' --- ');
   });
 
   eltViews.on("endFollow", function (/*event, bIsDone*/) {
@@ -236,17 +232,31 @@ GPXRouteEditor = function(map, panorama) {
     mapRouter.reverseRoute();
   });
 
-   mapRouter.setViews(eltViews);
+  eltAppendMode.click(function() {
+    eltAppendMode.addClass("active");
+    eltEditMode.removeClass("active");
+    mapRouter.mapMode("create");
+  });
+
+  eltEditMode.click(function() {
+    eltEditMode.addClass("active");
+    eltAppendMode.removeClass("active");
+    mapRouter.mapMode("edit");
+  });
+
+
+  mapRouter.setViews(eltViews);
 
 };
 
 google.maps.event.addDomListener(window, 'load', function(){
+  var INITIAL_LOCATION = new google.maps.LatLng(38.647100, 21.613360);
   var mapOptions = {
-    center: new google.maps.LatLng(-34.397, 150.644),
+    center: INITIAL_LOCATION,
     zoom: 10
   };
   var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-  var panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'));
+  var panorama = new google.maps.StreetViewPanorama(document.getElementById('panoView'));
   map.setStreetView(panorama);
   google.maps.visualRefresh = true;
   new GPXRouteEditor(map, panorama);
